@@ -2,48 +2,34 @@
 
 namespace JWage\APNS;
 
-class Sender
-{
-    /**
-     * @var \JWage\APNS\Client
-     */
-    private $client;
+class Sender {
 
-    /**
-     * Construct.
-     *
-     * @param \JWage\APNS\Client $client
-     */
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
-    }
+	/**
+	 * @var \JWage\APNS\Client
+	 */
+	private $client;
 
-    /**
-     * Sends a safari website push notification to the given deviceToken.
-     *
-     * @param string $deviceToken
-     * @param string $title 
-     * @param string $body
-     * @param string $deepLink
-     */
-    public function send($deviceToken, $title, $body, $deepLink = null)
-    {
-        return $this->client->sendPayload(
-            $deviceToken, $this->createPayload($title, $body, $deepLink)
-        );
-    }
+	/**
+	 * Construct.
+	 *
+	 * @param \JWage\APNS\Client $client
+	 */
+	public function __construct(Client $client) {
 
-    /**
-     * Creates a Payload instance.
-     *
-     * @param string $title
-     * @param string $body
-     * @param string $deepLink
-     * @return \JWage\APNS\Payload
-     */
-    private function createPayload($title, $body, $deepLink = null)
-    {
-        return new Payload($title, $body, $deepLink);
-    }
+		$this->client = $client;
+	}
+
+	/**
+	 *
+	 * @param array $notifications
+	 * Example notification object => {token: p, title: q, body: r, deep_link: s}
+	 * @return int
+	 */
+	public function send(array $notifications) {
+
+		$messageBinary = $this->client->createApnMessagesBinary($notifications);
+
+		return $this->client->sendPayload($messageBinary);
+
+	}
 }

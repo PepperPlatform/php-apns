@@ -2,45 +2,55 @@
 
 namespace JWage\APNS;
 
-class Client
-{
-    /**
-     * @var \JWage\APNS\SocketClient
-     */
-    private $socketClient;
+class Client {
 
-    /**
-     * Construct.
-     *
-     * @param \JWage\APNS\SocketClient $socketClient
-     */
-    public function __construct(SocketClient $socketClient)
-    {
-        $this->socketClient = $socketClient;
-    }
+	/**
+	 * @var \JWage\APNS\SocketClient
+	 */
+	private $socketClient;
 
-    /**
-     * Send Payload instance to a given device token.
-     *
-     * @param string $deviceToken The device token to send payload to.
-     * @param \JWage\APNS\Payload $payload The payload to send to device token.
-     */
-    public function sendPayload($deviceToken, Payload $payload)
-    {
-        return $this->socketClient->write(
-            $this->createApnMessage($deviceToken, $payload)->getBinaryMessage()
-        );
-    }
+	/**
+	 * Construct.
+	 *
+	 * @param \JWage\APNS\SocketClient $socketClient
+	 */
+	public function __construct(SocketClient $socketClient) {
 
-    /**
-     * Creates an APNSMessage instance for the given device token and payload.
-     *
-     * @param string $deviceToken
-     * @param \JWage\APNS\Payload $payload
-     * @return \JWage\APNS\APNSMessage
-     */
-    protected function createApnMessage($deviceToken, Payload $payload)
-    {
-        return new APNSMessage($deviceToken, $payload);
-    }
+		$this->socketClient = $socketClient;
+	}
+
+	/**
+	 * Creates an APNSMessage instance for the given device token and payload.
+	 *
+	 * @param string $deviceToken
+	 * @param \JWage\APNS\Payload $payload
+	 * @return \JWage\APNS\APNSMessage
+	 */
+	protected function createApnMessage($deviceToken, Payload $payload) {
+
+		return new APNSMessage($deviceToken, $payload);
+	}
+
+	/**
+	 * @param array $data - Data item structure { token: foo, payload: baz }
+	 * @return string
+	 */
+	public function createApnMessagesBinary(array $data) {
+
+		$messageBinary = "";
+		foreach ($data as $notificationData) {
+			$messageBinary .= $this->createApnMessage($notificationData->token, new Payload($notificationData->title, $notificationData->body, $notificationData->deepLink))->getBinaryMessage();
+		}
+
+		return $messageBinary;
+	}
+
+	/**
+	 * @param $binaryMessage
+	 * @return int
+	 */
+	public function sendPayload($binaryMessage) {
+
+		return $this->socketClient->write($binaryMessage);
+	}
 }
