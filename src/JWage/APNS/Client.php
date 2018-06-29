@@ -39,6 +39,7 @@ class Client {
 
 		$messageBinary = "";
 		foreach ($data as $notificationData) {
+			$notificationData = (object) $notificationData;
 			$messageBinary .= $this->createApnMessage($notificationData->token, new Payload($notificationData->title, $notificationData->body, $notificationData->deepLink))->getBinaryMessage();
 		}
 
